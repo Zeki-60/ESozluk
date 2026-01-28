@@ -20,7 +20,6 @@ namespace ESozluk.Business.Tests.Services
         private Mock<IMapper> _mockMapper;
         private Mock<IMailService> _mockMailService;
         private Mock<IHttpContextAccessor> _mockHttpContextAccessor; 
-        private Mock<IStringLocalizer<SharedResource>> _mockLocalizer; 
 
         [SetUp]
         public void Setup()
@@ -30,7 +29,6 @@ namespace ESozluk.Business.Tests.Services
             _mockMailService = new Mock<IMailService>();
             _mockAuthHelper = new Mock<IAuthHelper>();
             _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
-            _mockLocalizer = new Mock<IStringLocalizer<SharedResource>>(); 
 
             
 
@@ -39,8 +37,7 @@ namespace ESozluk.Business.Tests.Services
                 _mockAuthHelper.Object,
                 _mockMapper.Object,
                 _mockMailService.Object,
-                _mockHttpContextAccessor.Object,
-                _mockLocalizer.Object           
+                _mockHttpContextAccessor.Object
             );
         }
 
@@ -54,9 +51,7 @@ namespace ESozluk.Business.Tests.Services
                 ConfirmPassword = "password456"
             };
 
-            _mockLocalizer
-                .Setup(l => l["ErrorPasswordsDoNotMatch"])
-                .Returns(new LocalizedString("ErrorPasswordsDoNotMatch", "Şifreler uyuşmuyor."));
+            
 
             var ex = Assert.Throws<Exception>(() => _authService.ResetPassword(request));
             Assert.That(ex.Message, Is.EqualTo("Şifreler uyuşmuyor."));
@@ -75,9 +70,7 @@ namespace ESozluk.Business.Tests.Services
             _mockUserRepository.Setup(repo => repo.GetByResetToken(request.Token))
                                .Returns((User)null);
 
-            _mockLocalizer
-                .Setup(l => l["ErrorInvalidOrExpiredToken"])
-                .Returns(new LocalizedString("ErrorInvalidOrExpiredToken", "Geçersiz veya süresi dolmuş token"));
+            
 
 
             var ex = Assert.Throws<Exception>(() => _authService.ResetPassword(request));

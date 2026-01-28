@@ -8,10 +8,11 @@ namespace ESozluk.Domain.Entities
 {
     public class EntryComplaint
     {
-        public string Reason { get; set; } // Şikayet Nedeni 
-        public string Description { get; set; } // Detaylı Açıklama
+        public int Id { get; set; }
+        public string Reason { get; set; } 
+        public string Description { get; set; } 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public bool IsResolved { get; set; } = false; // admin inceledi mi?
+        public bool IsResolved { get; set; } = false; 
 
 
         public int UserId { get; set; }

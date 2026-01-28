@@ -18,17 +18,16 @@ public class AuthService : IAuthService
     private readonly IMapper _mapper;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMailService _mailService;
-    private readonly IStringLocalizer<SharedResource> _localizer;
+    
 
 
-    public AuthService(IUserRepository userRepository, IAuthHelper authHelper, IMapper mapper, IMailService mailService, IHttpContextAccessor httpContextAccessor,IStringLocalizer<SharedResource> localizer)
+    public AuthService(IUserRepository userRepository, IAuthHelper authHelper, IMapper mapper, IMailService mailService, IHttpContextAccessor httpContextAccessor)
     {
         _userRepository = userRepository;
         _authHelper = authHelper;
         _mapper = mapper;
         _mailService = mailService;
         _httpContextAccessor = httpContextAccessor;
-        _localizer = localizer;
 
     }
 
@@ -37,7 +36,7 @@ public class AuthService : IAuthService
         var userIdString = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         string.IsNullOrEmpty(userIdString)
-                        .IfTrueThrow(() => new AuthorizedAccessException(_localizer["UserNotFound"]));
+                        .IfTrueThrow(() => new AuthorizedAccessException(Resources.SharedResource.UserNotFound));
         return int.Parse(userIdString);
     }
     public User? GetCurrentUser()
@@ -46,7 +45,7 @@ public class AuthService : IAuthService
 
 
         string.IsNullOrEmpty(userIdString)
-            .IfTrueThrow(() => new AuthorizedAccessException(_localizer["UserNotFound"]));
+            .IfTrueThrow(() => new AuthorizedAccessException(Resources.SharedResource.UserNotFound));
         //if (string.IsNullOrEmpty(userIdString))
         //{
         //    throw new AuthorizedAccessException("Kullanıcı oturumu bulunamadı.");
@@ -61,10 +60,10 @@ public class AuthService : IAuthService
 
 
         (user == null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["UserNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.UserNotFound));
 
         (!_authHelper.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt))
-            .IfTrueThrow(() => new ValidationException(_localizer["PasswordError"]));
+            .IfTrueThrow(() => new ValidationException(Resources.SharedResource.PasswordError));
 
 
         
@@ -82,7 +81,7 @@ public class AuthService : IAuthService
     {
         var user = _userRepository.GetByEmail(email);
         (user == null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["UserNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.UserNotFound));
 
 
 
@@ -96,13 +95,13 @@ public class AuthService : IAuthService
     {
 
         (request.NewPassword != request.ConfirmPassword)
-            .IfTrueThrow(() => new Exception(_localizer["ErrorPasswordsDoNotMatch"]));
+            .IfTrueThrow(() => new Exception(Resources.SharedResource.ErrorPasswordsDoNotMatch));
         
 
         var user = _userRepository.GetByResetToken(request.Token);
 
         (user == null || user.PasswordResetTokenExpires < DateTime.Now)
-            .IfTrueThrow(() => new Exception(_localizer["ErrorInvalidOrExpiredToken"]));
+            .IfTrueThrow(() => new Exception(Resources.SharedResource.ErrorInvalidOrExpiredToken));
 
         
         byte[] passwordHash, passwordSalt;

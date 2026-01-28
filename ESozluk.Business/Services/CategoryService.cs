@@ -17,14 +17,13 @@ namespace ESozluk.Business.Services
     {
         private readonly ICategoryRepository _repository;
         public readonly IMapper _mapper;
-        private readonly IStringLocalizer<SharedResource> _localizer;
 
 
-        public CategoryService(ICategoryRepository repository, IMapper mapper, IStringLocalizer<SharedResource> localizer)
+        public CategoryService(ICategoryRepository repository, IMapper mapper )
         {
             _repository = repository;
             _mapper = mapper;
-            _localizer = localizer;
+           
         }
 
 
@@ -43,7 +42,7 @@ namespace ESozluk.Business.Services
             var category = _repository.GetCategoryWithTopics(categoryId);
 
             (category==null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorCategoryNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorCategoryNotFound));
 
 
             
@@ -71,7 +70,7 @@ namespace ESozluk.Business.Services
             var category = _repository.GetById(request.Id);
 
             (category==null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorCategoryNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorCategoryNotFound));
 
             
             _mapper.Map(request, category);
@@ -86,7 +85,7 @@ namespace ESozluk.Business.Services
             var category = _repository.GetById(request.Id);
 
             (category==null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorCategoryNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorCategoryNotFound));
 
             
             _repository.DeleteCategory(category);

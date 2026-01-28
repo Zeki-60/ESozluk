@@ -19,26 +19,24 @@ namespace ESozluk.Business.Services
         private readonly IEntryRepository _entryRepo;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IStringLocalizer<SharedResource> _localizer;
 
         public ComplaintService(
             IComplaintRepository repo,
             IEntryRepository productRepo,
             IMapper mapper,
-            IHttpContextAccessor httpContextAccessor,
-            IStringLocalizer<SharedResource> localizer)
+            IHttpContextAccessor httpContextAccessor
+           )
         {
             _repo = repo;
             _entryRepo = productRepo;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
-            _localizer = localizer;
         }
 
         private int GetCurrentUserId()
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) throw new UnauthorizedAccessException(_localizer["UserNotFound"]);
+            if (userIdClaim == null) throw new UnauthorizedAccessException(Resources.SharedResource.UserNotFound);
             return int.Parse(userIdClaim.Value);
         }
 
@@ -47,7 +45,7 @@ namespace ESozluk.Business.Services
             var entry = _entryRepo.GetById(request.EntryId);
             if (entry == null)
             {
-                throw new Exception(_localizer["ProductNotFound"]);
+                //throw new Exception(Resources.SharedResource.);
             }
 
             int userId = GetCurrentUserId();

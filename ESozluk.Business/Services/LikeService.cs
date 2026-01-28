@@ -23,9 +23,8 @@ namespace ESozluk.Business.Services
         private readonly IEntryRepository _entryRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthService _authService;
-        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public LikeService(ILikeRepository repository, IMapper mapper, IUserRepository userRepository, IEntryRepository entryRepository, IHttpContextAccessor httpContextAccessor, IAuthService authService, IStringLocalizer<SharedResource> localizer)
+        public LikeService(ILikeRepository repository, IMapper mapper, IUserRepository userRepository, IEntryRepository entryRepository, IHttpContextAccessor httpContextAccessor, IAuthService authService)
         {
             _repository = repository;
             _mapper = mapper;
@@ -33,7 +32,6 @@ namespace ESozluk.Business.Services
             _entryRepository = entryRepository;
             _httpContextAccessor = httpContextAccessor;
             _authService = authService;
-            _localizer = localizer;
         }
 
         public string ToggleLike(int entryId,int currentUserId)
@@ -41,7 +39,7 @@ namespace ESozluk.Business.Services
 
             var entry = _entryRepository.GetById(entryId);
             (entry == null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorEntryNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorEntryNotFound));
 
 
             var existingLike = _repository.GetLike(currentUserId, entryId);

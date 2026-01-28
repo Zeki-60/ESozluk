@@ -26,11 +26,10 @@ namespace ESozluk.Business.Services
         private readonly IAuthHelper _authHelper;
         private readonly IMailService _mailService;
         private readonly IAuthService _authService;
-        private readonly IStringLocalizer<SharedResource> _localizer;
 
 
 
-        public UserService(IUserRepository repository, IMapper mapper,IHttpContextAccessor httpContextAccessor,IAuthHelper authHelper,IMailService mailService, IAuthService authService, IStringLocalizer<SharedResource> localizer)
+        public UserService(IUserRepository repository, IMapper mapper,IHttpContextAccessor httpContextAccessor,IAuthHelper authHelper,IMailService mailService, IAuthService authService)
         {
             _repository = repository;
             _mapper = mapper;
@@ -38,7 +37,6 @@ namespace ESozluk.Business.Services
             _authHelper = authHelper;
             _mailService = mailService;
             _authService= authService;
-            _localizer = localizer;
 
         }
         
@@ -50,7 +48,7 @@ namespace ESozluk.Business.Services
         public void AddUser(AddUserRequest request)
         {
             _repository.GetAllUsers().Any(u => u.Email == request.Email)
-                .IfTrueThrow(() => new ValidationException(_localizer["ValidationEmailAlreadyExists"]));
+                .IfTrueThrow(() => new ValidationException(Resources.SharedResource.ValidationEmailAlreadyExists));
 
 
             byte[] passwordHash, passwordSalt;
@@ -73,12 +71,12 @@ namespace ESozluk.Business.Services
         {
             var user = _repository.GetById(request.Id);
             (user == null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["UserNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.UserNotFound));
             //var currentUser = _httpContextAccessor.HttpContext ?. User;
             //bool isAdmin = currentUser.IsInRole("Admin");
 
             (user.Id != currentUserId && !isCurrentUserAdmin)
-                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+                .IfTrueThrow(() => new AuthorizedAccessException(Resources.SharedResource.ErrorUnauthorizedAccess));
 
 
 
@@ -103,7 +101,7 @@ namespace ESozluk.Business.Services
             var user = _repository.GetById(request.Id);
 
             (user == null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["UserNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.UserNotFound));
 
             //var currentUser = _httpContextAccessor.HttpContext?.User;
             //bool isAdmin = currentUser.IsInRole("Admin");
@@ -111,7 +109,7 @@ namespace ESozluk.Business.Services
 
 
             (user.Id != currentUserId && !isCurrentUserAdmin)
-                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+                .IfTrueThrow(() => new AuthorizedAccessException(Resources.SharedResource.ErrorUnauthorizedAccess));
 
 
             _repository.DeleteUser(user);

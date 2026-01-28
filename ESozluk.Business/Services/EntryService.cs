@@ -27,9 +27,8 @@ namespace ESozluk.Business.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITopicRepository _topicRepository;
         private readonly IAuthService _authService;
-        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public EntryService(IEntryRepository repository, IMapper mapper,IUserRepository userRepository,ITopicRepository topicRepository,IHttpContextAccessor httpContextAccessor, IAuthService authService, IStringLocalizer<SharedResource> localizer)
+        public EntryService(IEntryRepository repository, IMapper mapper,IUserRepository userRepository,ITopicRepository topicRepository,IHttpContextAccessor httpContextAccessor, IAuthService authService)
         {
             _repository = repository;
             _mapper = mapper;
@@ -37,7 +36,6 @@ namespace ESozluk.Business.Services
             _topicRepository = topicRepository;
             _httpContextAccessor = httpContextAccessor;
             _authService=authService;
-            _localizer = localizer;
         }
         
 
@@ -50,7 +48,7 @@ namespace ESozluk.Business.Services
             
             
             (topic==null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorTopicNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorTopicNotFound));
 
             
 
@@ -112,10 +110,10 @@ namespace ESozluk.Business.Services
             var entry = _repository.GetById(request.Id);
 
             (entry==null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorEntryNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorEntryNotFound));
             
             (entry.UserId != _authService.GetCurrentUserId())
-                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+                .IfTrueThrow(() => new AuthorizedAccessException(Resources.SharedResource.ErrorUnauthorizedAccess));
 
             
 
@@ -132,13 +130,13 @@ namespace ESozluk.Business.Services
         {
             var entry = _repository.GetById(request.Id);
             (entry==null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorEntryNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorEntryNotFound));
 
 
             //var currentUser = _httpContextAccessor.HttpContext?.User;//düzelt
             //bool isModerator = currentUser.IsInRole("Moderator");
             (entry.UserId != currentUserId && !isCurrentUserModerator)
-                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+                .IfTrueThrow(() => new AuthorizedAccessException(Resources.SharedResource.ErrorUnauthorizedAccess));
             
             _repository.DeleteEntry(entry);
         }

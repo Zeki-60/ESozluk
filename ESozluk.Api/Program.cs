@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,25 @@ builder.Services.AddControllers()
     });// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+var supportedCultures = new[]
+{
+    
+    new CultureInfo("tr-TR"),
+    new CultureInfo("en-US")
+};
+
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture =
+        new RequestCulture(new CultureInfo("tr-TR")),
+
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+};
+localizationOptions.RequestCultureProviders = new List<IRequestCultureProvider>
+{
+    new AcceptLanguageHeaderRequestCultureProvider()
+};
 builder.Services.AddLocalization();
 builder.Services.AddScoped<IAuthHelper, AuthHelper>();
 builder.Services.AddScoped<IMailService, MailService>();
@@ -112,18 +132,8 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-var supportedCultures = new[]
-{
-    new CultureInfo("tr-TR"),
-    new CultureInfo("en-US")
-};
 
-app.UseRequestLocalization(new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture("tr-TR"), // Varsayýlan Türkçe
-    SupportedCultures = supportedCultures,
-    SupportedUICultures = supportedCultures
-});
+app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

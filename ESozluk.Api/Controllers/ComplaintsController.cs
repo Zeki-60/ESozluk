@@ -14,12 +14,10 @@ namespace ESozluk.Api.Controllers
     public class ComplaintsController : ControllerBase
     {
         private readonly IComplaintService _service;
-        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public ComplaintsController(IComplaintService service, IStringLocalizer<SharedResource> localizer)
+        public ComplaintsController(IComplaintService service)
         {
             _service = service;
-            _localizer = localizer;
         }
 
         [HttpPost]

@@ -22,16 +22,14 @@ namespace ESozluk.Business.Services
         private readonly IUserRepository _userRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IAuthService _authService;
-        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public TopicService(ITopicRepository repository, IMapper mapper, IUserRepository userRepository, ICategoryRepository categoryRepository, IAuthService authService, IStringLocalizer<SharedResource> localizer)
+        public TopicService(ITopicRepository repository, IMapper mapper, IUserRepository userRepository, ICategoryRepository categoryRepository, IAuthService authService)
         {
             _repository = repository;
             _mapper = mapper;
             _userRepository = userRepository;
             _categoryRepository = categoryRepository;
             _authService= authService;
-            _localizer = localizer;
         }
 
         public TopicWithEntriesResponse GetTopicWithEntries(int topicId,string sort)
@@ -39,7 +37,7 @@ namespace ESozluk.Business.Services
             var topic = _repository.GetTopicWithEntries(topicId);
 
             (topic==null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorTopicNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorTopicNotFound));
 
             var response = new TopicWithEntriesResponse
             {
@@ -69,11 +67,11 @@ namespace ESozluk.Business.Services
             var category= _categoryRepository.GetById(request.CategoryId);
 
             (user==null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["UserNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.UserNotFound));
 
            
             (category==null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorCategoryNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorCategoryNotFound));
             
 
             var topicEntity = _mapper.Map<Topic>(request);
@@ -96,10 +94,10 @@ namespace ESozluk.Business.Services
             var topic = _repository.GetById(request.Id);
 
             (topic == null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorTopicNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorTopicNotFound));
 
             (topic.UserId != currentUserId)
-                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+                .IfTrueThrow(() => new AuthorizedAccessException(Resources.SharedResource.ErrorUnauthorizedAccess));
 
             
 
@@ -113,9 +111,9 @@ namespace ESozluk.Business.Services
             var topic = _repository.GetById(request.Id);
 
             (topic == null)
-                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorTopicNotFound"]));
+                .IfTrueThrow(() => new NotFoundException(Resources.SharedResource.ErrorTopicNotFound));
             (topic.UserId != currentUserId)
-                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+                .IfTrueThrow(() => new AuthorizedAccessException(Resources.SharedResource.ErrorUnauthorizedAccess));
 
 
             _repository.DeleteTopic(topic);

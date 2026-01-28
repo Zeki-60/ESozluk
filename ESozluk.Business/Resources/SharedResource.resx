@@ -141,6 +141,9 @@
   <data name="PasswordError" xml:space="preserve">
     <value>Şifre hatalı.</value>
   </data>
+  <data name="Product" xml:space="preserve">
+    <value />
+  </data>
   <data name="UserNotFound" xml:space="preserve">
     <value>Kullanıcı bulunamadı.</value>
   </data>
