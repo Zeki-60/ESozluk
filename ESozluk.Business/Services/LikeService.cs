@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
-using ESozluk.Core.DTOs;
-using ESozluk.Core.Entities;
-using ESozluk.Core.Exceptions;
-using ESozluk.Core.Interfaces;
+using Core.Extensions;
+using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Entities;
+using ESozluk.Domain.Exceptions;
+using ESozluk.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,28 +22,29 @@ namespace ESozluk.Business.Services
         private readonly IUserRepository _userRepository;
         private readonly IEntryRepository _entryRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUserService _userService;
+        private readonly IAuthService _authService;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public LikeService(ILikeRepository repository, IMapper mapper, IUserRepository userRepository, IEntryRepository entryRepository, IHttpContextAccessor httpContextAccessor, IUserService userService)
+        public LikeService(ILikeRepository repository, IMapper mapper, IUserRepository userRepository, IEntryRepository entryRepository, IHttpContextAccessor httpContextAccessor, IAuthService authService, IStringLocalizer<SharedResource> localizer)
         {
             _repository = repository;
             _mapper = mapper;
             _userRepository = userRepository;
             _entryRepository = entryRepository;
-            _httpContextAccessor= httpContextAccessor;
-            _userService= userService;
+            _httpContextAccessor = httpContextAccessor;
+            _authService = authService;
+            _localizer = localizer;
         }
-        
-        public string ToggleLike(int entryId)
-        {
-            int userId = _userService.GetCurrentUserId();
 
-            var entry=_entryRepository.GetById(entryId);
-            if (entry == null)
-            {
-                throw new NotFoundException("Entry bulunamadı");
-            }
-            var existingLike = _repository.GetLike(userId, entryId);
+        public string ToggleLike(int entryId,int currentUserId)
+        {
+
+            var entry = _entryRepository.GetById(entryId);
+            (entry == null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorEntryNotFound"]));
+
+
+            var existingLike = _repository.GetLike(currentUserId, entryId);
 
             if (existingLike != null)
             {
@@ -53,7 +56,7 @@ namespace ESozluk.Business.Services
             {
                 var newLike = new Like
                 {
-                    UserId = userId,
+                    UserId = currentUserId,
                     EntryId = entryId
                 };
                 _repository.AddLike(newLike);
@@ -62,10 +65,10 @@ namespace ESozluk.Business.Services
             }
         }
 
-        public List<EntryResponse> GetMyLikedEntries()
+        public List<EntryResponse> GetMyLikedEntries(int currentUserId)
         {
-            int userId = _userService.GetCurrentUserId();
-            var entries = _repository.GetLikedEntriesByUser(userId);
+            
+            var entries = _repository.GetLikedEntriesByUser(currentUserId);
             return _mapper.Map<List<EntryResponse>>(entries);
         }
     }

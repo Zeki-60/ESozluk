@@ -1,4 +1,4 @@
-﻿using ESozluk.Core.Entities;
+﻿using ESozluk.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -49,9 +49,19 @@ namespace ESozluk.DataAccess
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.RoleId);
 
+            modelBuilder.Entity<EntryComplaint>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.EntryComplaints)
+                .HasForeignKey(ur => ur.UserId);
+
+            modelBuilder.Entity<EntryComplaint>()
+               .HasOne(ur => ur.Entry)
+               .WithMany(u => u.EntryComplaints)
+               .HasForeignKey(ur => ur.EntryId);
+
             base.OnModelCreating(modelBuilder);
         }
-
+        public DbSet<EntryComplaint> EntryComplaints { get; set; }
         public DbSet<Topic> Topics{ get; set; }
         public DbSet<Like> Likes{get; set;}
         public DbSet<Entry> Entries{get; set;}

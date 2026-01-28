@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ESozluk.Core.DTOs;
-using ESozluk.Core.Entities;
+using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Entities;
 
 namespace ESozluk.Business.Mapping
 {
@@ -24,6 +24,7 @@ namespace ESozluk.Business.Mapping
             CreateMap<AddUserRequest, User>();
             CreateMap<UpdateUserRequest, User>();
             CreateMap<User, UserResponse>();
+            CreateMap<AddComplaintRequest, EntryComplaint>();
 
 
             CreateMap<AddTopicRequest, Topic>();
@@ -54,8 +55,11 @@ namespace ESozluk.Business.Mapping
                 .ForMember(dest => dest.TopicName, opt =>
                     opt.MapFrom(src => src.Topic != null ? src.Topic.Name : "Topic Yok"))
                 .ForMember(dest => dest.LikeCount, opt =>
-        opt.MapFrom(src => src.Likes != null ? src.Likes.Count : 0));
+                     opt.MapFrom(src => src.Likes != null ? src.Likes.Count : 0));
 
+            CreateMap<EntryComplaint, ComplaintResponse>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
+                .ForMember(dest => dest.EntryName, opt => opt.MapFrom(src => src.Entry.Name));
 
             CreateMap<User, LoginResponse>();
 

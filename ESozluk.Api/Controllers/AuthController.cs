@@ -1,5 +1,5 @@
-﻿using ESozluk.Core.DTOs;
-using ESozluk.Core.Interfaces;
+﻿using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ESozluk.Api.Controllers

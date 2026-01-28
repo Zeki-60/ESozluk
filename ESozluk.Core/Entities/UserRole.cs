@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ESozluk.Core.Entities
+namespace ESozluk.Domain.Entities
 {
     public class UserRole
     {

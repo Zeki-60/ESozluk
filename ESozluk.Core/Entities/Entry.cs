@@ -1,4 +1,4 @@
-﻿namespace ESozluk.Core.Entities
+﻿namespace ESozluk.Domain.Entities
 {
     //bunun kategoriye bağlanmasına gerek varmı
     public class Entry
@@ -14,7 +14,7 @@
         public DateTime UpdateDate { get; set; }
         public int LikeCount { get; set; }
         public List<Like>? Likes { get; set; }
-
+        public List<EntryComplaint>? EntryComplaints { get; set; }
 
     }
 }

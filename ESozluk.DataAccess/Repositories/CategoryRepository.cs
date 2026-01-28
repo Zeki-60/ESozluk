@@ -1,5 +1,5 @@
-﻿using ESozluk.Core.Entities;
-using ESozluk.Core.Interfaces;
+﻿using ESozluk.Domain.Entities;
+using ESozluk.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
-using ESozluk.Core.DTOs;
-using ESozluk.Core.Entities;
-using ESozluk.Core.Exceptions;
-using ESozluk.Core.Interfaces;
+using Core.Extensions;
+using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Entities;
+using ESozluk.Domain.Exceptions;
+using ESozluk.Domain.Interfaces;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +17,14 @@ namespace ESozluk.Business.Services
     {
         private readonly ICategoryRepository _repository;
         public readonly IMapper _mapper;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public CategoryService(ICategoryRepository repository, IMapper mapper)
+
+        public CategoryService(ICategoryRepository repository, IMapper mapper, IStringLocalizer<SharedResource> localizer)
         {
             _repository = repository;
             _mapper = mapper;
+            _localizer = localizer;
         }
 
 
@@ -36,10 +41,12 @@ namespace ESozluk.Business.Services
         public CategoryWithTopicsResponse GetCategoryWithTopics(int categoryId)
         {
             var category = _repository.GetCategoryWithTopics(categoryId);
-            if (category == null)
-            {
-                throw new NotFoundException("Kategori bulunamadı");
-            }
+
+            (category==null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorCategoryNotFound"]));
+
+
+            
             var response = new CategoryWithTopicsResponse
             {
                 Id = category.Id,
@@ -56,26 +63,17 @@ namespace ESozluk.Business.Services
 
             var category = _repository.GetAll();
             return _mapper.Map<List<CategoryResponse>>(category);
-            //var categories = _repository.GetAll();
-            //var responseList = new List<CategoryResponse>();
-            //foreach (var category in categories)
-            //{
-            //    responseList.Add(new CategoryResponse
-            //    {
-            //        Id = category.Id,
-            //        Name = category.Name,
-            //    });
-            //}
-            //return responseList;
+            
         }
 
         public void UpdateCategory(UpdateCategoryRequest request)
         {
             var category = _repository.GetById(request.Id);
-            if (category == null)
-            {
-                throw new NotFoundException("Güncellenecek kategori bulunamadı.");
-            }
+
+            (category==null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorCategoryNotFound"]));
+
+            
             _mapper.Map(request, category);
             _repository.UpdateCategory(category);
 
@@ -86,10 +84,11 @@ namespace ESozluk.Business.Services
         public void DeleteCategory(DeleteCategoryRequest request)
         {
             var category = _repository.GetById(request.Id);
-            if (category == null)
-            {
-                throw new NotFoundException("Kategori bulunamadı");
-            }
+
+            (category==null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorCategoryNotFound"]));
+
+            
             _repository.DeleteCategory(category);
         }
     }

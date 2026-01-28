@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ESozluk.Core.Exceptions
+namespace ESozluk.Domain.Exceptions
 {
     public class NotFoundException : Exception
     {

@@ -1,8 +1,10 @@
-﻿using ESozluk.Core.DTOs;
-using ESozluk.Core.Interfaces;
+﻿using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ESozluk.Domain.Constants; 
+
 
 namespace ESozluk.Api.Controllers
 {
@@ -25,7 +27,7 @@ namespace ESozluk.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles =$"{Roles.Admin}")]
         public IActionResult CreateCategory(AddCategoryRequest request)
         {
             _service.AddCategory(request);
@@ -33,7 +35,7 @@ namespace ESozluk.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = $"{Roles.Admin}")]
         public IActionResult DeleteCategory([FromRoute] int id, [FromBody] DeleteCategoryRequest request)
         {
             
@@ -52,7 +54,7 @@ namespace ESozluk.Api.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles =$"{Roles.Admin}")]
         public IActionResult UpdateCategory([FromBody] UpdateCategoryRequest request)
         {
             

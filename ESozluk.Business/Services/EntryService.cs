@@ -1,17 +1,21 @@
 ﻿using AutoMapper;
+using Core.Extensions;
 using ESozluk.Business.Utilities;
-using ESozluk.Core.DTOs;
-using ESozluk.Core.Entities;
-using ESozluk.Core.Exceptions;
-using ESozluk.Core.Interfaces;
+using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Entities;
+using ESozluk.Domain.Exceptions;
+using ESozluk.Domain.Interfaces;
 using ESozluk.DataAccess.Repositories;
 using Microsoft.AspNetCore.Http;
+using Org.BouncyCastle.Bcpg.Sig;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Localization;
+
 
 namespace ESozluk.Business.Services
 {
@@ -22,31 +26,33 @@ namespace ESozluk.Business.Services
         private readonly IUserRepository _userRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITopicRepository _topicRepository;
-        private readonly IUserService _userService;
+        private readonly IAuthService _authService;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public EntryService(IEntryRepository repository, IMapper mapper,IUserRepository userRepository,ITopicRepository topicRepository,IHttpContextAccessor httpContextAccessor, IUserService userService)
+        public EntryService(IEntryRepository repository, IMapper mapper,IUserRepository userRepository,ITopicRepository topicRepository,IHttpContextAccessor httpContextAccessor, IAuthService authService, IStringLocalizer<SharedResource> localizer)
         {
             _repository = repository;
             _mapper = mapper;
             _userRepository = userRepository;
             _topicRepository = topicRepository;
             _httpContextAccessor = httpContextAccessor;
-            _userService = userService;
+            _authService=authService;
+            _localizer = localizer;
         }
         
 
-        public void AddEntry(AddEntryRequest request)
+        public void AddEntry(AddEntryRequest request, int currentUserId)
         {
+
             
-            int user = _userService.GetCurrentUserId();
+            int user = currentUserId;
             var topic = _topicRepository.GetById(request.TopicId);
             
             
+            (topic==null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorTopicNotFound"]));
+
             
-            if (topic == null)
-            {
-                throw new NotFoundException("Topic Id bulunamadı.");
-            }
 
             var entryEntity = _mapper.Map<Entry>(request);
             entryEntity.UserId = user; // <--- Token'dan gelen ID'yi buraya atadık.
@@ -104,14 +110,14 @@ namespace ESozluk.Business.Services
         {
 
             var entry = _repository.GetById(request.Id);
-            if (entry == null)
-            {
-                throw new NotFoundException("Entry bulunamadı.");
-            }
-            if (entry.UserId != _userService.GetCurrentUserId())
-            {
-                throw new UnauthorizedAccessException("Bu entry'i güncelleme yetkiniz yok. Sadece kendi entrylerinizi düzenleyebilirsiniz.");
-            }
+
+            (entry==null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorEntryNotFound"]));
+            
+            (entry.UserId != _authService.GetCurrentUserId())
+                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+
+            
 
             _mapper.Map(request, entry);
             entry.UpdateDate = DateTime.Now; // Güncelleme tarihini oto alıyouz
@@ -122,19 +128,18 @@ namespace ESozluk.Business.Services
         }
 
 
-        public void DeleteEntry(DeleteEntryRequest request)
+        public void DeleteEntry(DeleteEntryRequest request,int currentUserId, bool isCurrentUserModerator)
         {
             var entry = _repository.GetById(request.Id);
-            if (entry == null)
-            {
-                throw new NotFoundException("Entry bulunamadı.");
-            }
-            var currentUser = _userService;
-            bool isModerator = currentUser.IsInRole("Moderator");
-            if (entry.UserId != _userService.GetCurrentUserId() && !isModerator)
-            {
-                throw new AuthorizedAccessException("Bu entry'i silme yetkiniz yok.");
-            }
+            (entry==null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorEntryNotFound"]));
+
+
+            //var currentUser = _httpContextAccessor.HttpContext?.User;//düzelt
+            //bool isModerator = currentUser.IsInRole("Moderator");
+            (entry.UserId != currentUserId && !isCurrentUserModerator)
+                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+            
             _repository.DeleteEntry(entry);
         }
     }

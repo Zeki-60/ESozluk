@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace ESozluk.Core.DTOs
+namespace ESozluk.Domain.DTOs
 {
     public class DeleteTopicRequest
     {

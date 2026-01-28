@@ -1,4 +1,4 @@
-﻿using ESozluk.Core.Interfaces;
+﻿using ESozluk.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MailKit.Net.Smtp;

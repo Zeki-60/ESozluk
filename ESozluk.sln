@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESozluk.Domain", "ESozluk.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESozluk.DataAccess", "ESozluk.DataAccess\ESozluk.DataAccess.csproj", "{ED239C89-E2E5-41B0-97B1-B1ACE08FB45F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{A5BDE051-53FE-4C06-A4BC-90E50DCD0042}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{A5BDE051-53FE-4C06-A4BC-90E50DCD0042}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESozluk.Business.Tests", "ESozluk.Business.Tests\ESozluk.Business.Tests.csproj", "{0045560F-FFB4-4246-B4BC-040D6F9CD02E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{A5BDE051-53FE-4C06-A4BC-90E50DCD0042}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5BDE051-53FE-4C06-A4BC-90E50DCD0042}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5BDE051-53FE-4C06-A4BC-90E50DCD0042}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0045560F-FFB4-4246-B4BC-040D6F9CD02E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0045560F-FFB4-4246-B4BC-040D6F9CD02E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0045560F-FFB4-4246-B4BC-040D6F9CD02E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0045560F-FFB4-4246-B4BC-040D6F9CD02E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

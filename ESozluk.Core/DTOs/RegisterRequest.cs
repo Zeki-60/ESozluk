@@ -1,4 +1,4 @@
-﻿namespace ESozluk.Core.DTOs
+﻿namespace ESozluk.Domain.DTOs
 {
     public class RegisterRequest
     {

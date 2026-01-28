@@ -1,6 +1,7 @@
-﻿using ESozluk.Core.DTOs;
-using ESozluk.Core.Entities;
-using ESozluk.Core.Interfaces;
+﻿using ESozluk.Business.Services;
+using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Entities;
+using ESozluk.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,12 @@ namespace ESozluk.Api.Controllers
     public class EntriesController : ControllerBase
     {
         private readonly IEntryService _service;
+        private readonly IAuthService _authService;
 
-        public EntriesController(IEntryService service)
+        public EntriesController(IEntryService service, IAuthService authService)
         {
             _service = service;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -31,7 +34,8 @@ namespace ESozluk.Api.Controllers
         [Authorize]
         public IActionResult CreateEntry(AddEntryRequest request)
         {
-            _service.AddEntry(request);
+            var currentUserId = _authService.GetCurrentUserId();
+            _service.AddEntry(request, currentUserId);
             return Ok("Entry eklendi.");
         }
 
@@ -40,8 +44,10 @@ namespace ESozluk.Api.Controllers
         public IActionResult DeleteEntry([FromRoute] int id, [FromBody] DeleteEntryRequest request)
         {
                 request.Id = id;
+                int currentUserId= _authService.GetCurrentUserId();
+                bool isCurrentUserModerator= User.IsInRole("Moderator");
 
-                _service.DeleteEntry(request);
+            _service.DeleteEntry(request,currentUserId,isCurrentUserModerator);
                 return Ok("Entry silindi");
             
         }

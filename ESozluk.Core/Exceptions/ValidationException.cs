@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ESozluk.Core.Exceptions
+namespace ESozluk.Domain.Exceptions
 {
     public class ValidationException : Exception
     {

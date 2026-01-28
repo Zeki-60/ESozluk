@@ -1,6 +1,7 @@
-﻿using ESozluk.Core.DTOs;
+﻿using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Entities;
 
-namespace ESozluk.Core.Interfaces
+namespace ESozluk.Domain.Interfaces
 {
     public interface IAuthService
     {
@@ -8,6 +9,8 @@ namespace ESozluk.Core.Interfaces
         //void Register(RegisterRequest request); 
         void ForgotPassword(string email);
         void ResetPassword(ResetPasswordRequest request);
+        int GetCurrentUserId();
+        User? GetCurrentUser();
 
     }
 }

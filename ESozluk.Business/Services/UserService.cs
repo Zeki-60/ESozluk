@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Core.Extensions;
 using ESozluk.Business.Utilities.Security;
-using ESozluk.Core.DTOs;
-using ESozluk.Core.Entities;
-using ESozluk.Core.Exceptions;
-using ESozluk.Core.Interfaces;
+using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Entities;
+using ESozluk.Domain.Exceptions;
+using ESozluk.Domain.Interfaces;
 using ESozluk.DataAccess.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -23,47 +23,34 @@ namespace ESozluk.Business.Services
         private readonly IUserRepository _repository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly AuthHelper _authHelper;
+        private readonly IAuthHelper _authHelper;
         private readonly IMailService _mailService;
+        private readonly IAuthService _authService;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
 
-        public UserService(IUserRepository repository, IMapper mapper,IHttpContextAccessor httpContextAccessor,AuthHelper authHelper,IMailService mailService)
+
+        public UserService(IUserRepository repository, IMapper mapper,IHttpContextAccessor httpContextAccessor,IAuthHelper authHelper,IMailService mailService, IAuthService authService, IStringLocalizer<SharedResource> localizer)
         {
             _repository = repository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _authHelper = authHelper;
             _mailService = mailService;
-        }
-        public int GetCurrentUserId()
-        {
-            var userIdString = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            _authService= authService;
+            _localizer = localizer;
 
-            if (string.IsNullOrEmpty(userIdString))
-            {
-                throw new AuthorizedAccessException("Kullanıcı oturumu bulunamadı.");
-            }
-            return int.Parse(userIdString);
         }
+        
 
-        public User? GetCurrentUser()
-        {
-            var userIdString = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString))
-            {
-                throw new AuthorizedAccessException("Kullanıcı oturumu bulunamadı.");
-            }
-            return _repository.GetById(int.Parse(userIdString));
-        }
+        
 
 
 
         public void AddUser(AddUserRequest request)
         {
-
             _repository.GetAllUsers().Any(u => u.Email == request.Email)
-                .IfTrueThrow(() => new ValidationException("Bu e-posta adresi zaten kullanılıyor."));
+                .IfTrueThrow(() => new ValidationException(_localizer["ValidationEmailAlreadyExists"]));
 
 
             byte[] passwordHash, passwordSalt;
@@ -82,18 +69,18 @@ namespace ESozluk.Business.Services
 
             
         }
-        public void UpdateUser(UpdateUserRequest request)
+        public void UpdateUser(UpdateUserRequest request, int currentUserId, bool isCurrentUserAdmin)
         {
             var user = _repository.GetById(request.Id);
             (user == null)
-                .IfTrueThrow(() => new NotFoundException("Kullanıcı bulunamadı."));
-            var currentUser = _httpContextAccessor.HttpContext ?. User;
-            bool isAdmin = currentUser.IsInRole("Admin");
+                .IfTrueThrow(() => new NotFoundException(_localizer["UserNotFound"]));
+            //var currentUser = _httpContextAccessor.HttpContext ?. User;
+            //bool isAdmin = currentUser.IsInRole("Admin");
 
-            if (user.Id != GetCurrentUserId() && !isAdmin)
-            {
-                throw new AuthorizedAccessException("Bu kullancıyı güncelleme yetkiniz yok.");
-            }
+            (user.Id != currentUserId && !isCurrentUserAdmin)
+                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+
+
 
             byte[] passwordHash, passwordSalt;
             _authHelper.CreatePasswordHash(request.Password, out passwordHash, out passwordSalt);
@@ -111,19 +98,22 @@ namespace ESozluk.Business.Services
         }
 
 
-        public void DeleteUser(DeleteUserRequest request)
+        public void DeleteUser(DeleteUserRequest request,int currentUserId, bool isCurrentUserAdmin)
         {
             var user = _repository.GetById(request.Id);
-            if (user == null)
-            {
-                throw new NotFoundException("Kullanıcı bulunamadı.");
-            }
-            var currentUser = _httpContextAccessor.HttpContext?.User;
-            bool isAdmin = currentUser.IsInRole("Admin");
-            if (user.Id != GetCurrentUserId() && !isAdmin)
-            {
-                throw new AuthorizedAccessException("Bu kullanıcıyı silme yetkiniz yok.");
-            }
+
+            (user == null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["UserNotFound"]));
+
+            //var currentUser = _httpContextAccessor.HttpContext?.User;
+            //bool isAdmin = currentUser.IsInRole("Admin");
+
+
+
+            (user.Id != currentUserId && !isCurrentUserAdmin)
+                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+
+
             _repository.DeleteUser(user);
         }
     }

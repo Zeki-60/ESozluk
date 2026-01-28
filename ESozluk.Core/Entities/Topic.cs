@@ -1,4 +1,4 @@
-﻿namespace ESozluk.Core.Entities
+﻿namespace ESozluk.Domain.Entities
 {
     public class Topic
     {

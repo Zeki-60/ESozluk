@@ -1,5 +1,6 @@
-﻿using ESozluk.Core.DTOs;
-using ESozluk.Core.Interfaces;
+﻿using ESozluk.Domain.Constants;
+using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,12 @@ namespace ESozluk.Api.Controllers
     public class TopicsController : ControllerBase
     {
         private readonly ITopicService _service;
+        private readonly IAuthService _authService;
 
-        public TopicsController(ITopicService service)
+        public TopicsController(ITopicService service,IAuthService authService)
         {
             _service = service;
+            _authService= authService;
         }
 
         [HttpGet]
@@ -25,7 +28,7 @@ namespace ESozluk.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles ="Admin,Writer")]
+        [Authorize(Roles =$"{Roles.Admin},{Roles.Writer}")]
         public IActionResult CreateTopic([FromBody] AddTopicRequest request)
         {
             _service.AddTopic(request);
@@ -33,12 +36,12 @@ namespace ESozluk.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin,Writer")]
+        [Authorize(Roles = $"{Roles.Admin},{Roles.Writer}")]
         public IActionResult DeleteTopic([FromRoute] int id, [FromBody] DeleteTopicRequest request)
         {
                 request.Id = id;
-
-                _service.DeleteTopic(request);
+                int currentUserId=_authService.GetCurrentUserId();
+                _service.DeleteTopic(request,currentUserId);
                 return Ok("Topic silindi");
             
         }
@@ -51,11 +54,11 @@ namespace ESozluk.Api.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "Admin,Writer")]
+        [Authorize(Roles = $"{Roles.Admin},{Roles.Writer}")]
         public IActionResult UpdateTopic([FromBody] UpdateTopicRequest request)
         {
-            
-                _service.UpdateTopic(request);
+                int currentUserId=_authService.GetCurrentUserId();
+                _service.UpdateTopic(request,currentUserId);
                 return Ok(new { Message = "Topic başarıyla güncellendi." });
             
         }

@@ -1,4 +1,4 @@
-﻿namespace ESozluk.Core.Entities
+﻿namespace ESozluk.Domain.Entities
 {
     public class User
     {
@@ -14,6 +14,7 @@
         public List<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public string? PasswordResetToken { get; set; } 
         public DateTime? PasswordResetTokenExpires { get; set; } 
+        public List<EntryComplaint>? EntryComplaints { get; set; }
 
     }
 }

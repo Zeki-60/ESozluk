@@ -1,4 +1,4 @@
-﻿using ESozluk.Core.DTOs;
+﻿using ESozluk.Domain.DTOs;
 using FluentValidation;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,6 @@
-﻿using ESozluk.Core.DTOs;
-using ESozluk.Core.Interfaces;
+﻿using ESozluk.Domain.Constants;
+using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,12 @@ namespace ESozluk.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _service;
+        private readonly IAuthService _authService;
 
-        public UsersController(IUserService service)
+        public UsersController(IUserService service, IAuthService authService)
         {
             _service = service;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -35,23 +38,27 @@ namespace ESozluk.Api.Controllers
         [Authorize]
         public IActionResult DeleteUser([FromRoute] int id, [FromBody] DeleteUserRequest request)
         {
-            
-                request.Id = id;
 
-                _service.DeleteUser(request);
-                return Ok("Kullanıcı silindi");
-            
+            request.Id = id;
+            var currentUserId = _authService.GetCurrentUserId();
+            var isCurrentUserAdmin = User.IsInRole(Roles.Admin);
+
+            _service.DeleteUser(request, currentUserId, isCurrentUserAdmin);
+            return Ok("Kullanıcı silindi");
+
         }
 
         [HttpPut]
         [Authorize]
-        public IActionResult UpdateUser([FromBody]UpdateUserRequest request)
+        public IActionResult UpdateUser([FromBody] UpdateUserRequest request)
         {
 
-                
-                _service.UpdateUser(request);
-                return Ok(new { Message = "Kullanıcı başarıyla güncellendi." });
-            
+            var currentUserId = _authService.GetCurrentUserId();
+            var isCurrentUserAdmin = User.IsInRole(Roles.Admin);
+
+            _service.UpdateUser(request, currentUserId, isCurrentUserAdmin);
+            return Ok(new { Message = "Kullanıcı başarıyla güncellendi." });
+
         }
     }
 }

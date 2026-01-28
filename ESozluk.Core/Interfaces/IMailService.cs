@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ESozluk.Core.Interfaces
+namespace ESozluk.Domain.Interfaces
 {
     public interface IMailService
     {

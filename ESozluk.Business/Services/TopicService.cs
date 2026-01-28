@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
-using ESozluk.Core.DTOs;
-using ESozluk.Core.Entities;
-using ESozluk.Core.Exceptions;
-using ESozluk.Core.Interfaces;
+using Core.Extensions;
+using ESozluk.Domain.DTOs;
+using ESozluk.Domain.Entities;
+using ESozluk.Domain.Exceptions;
+using ESozluk.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,24 +21,26 @@ namespace ESozluk.Business.Services
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
         private readonly ICategoryRepository _categoryRepository;
-        private readonly IUserService _userService; 
+        private readonly IAuthService _authService;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public TopicService(ITopicRepository repository, IMapper mapper, IUserRepository userRepository, ICategoryRepository categoryRepository, IUserService userService)
+        public TopicService(ITopicRepository repository, IMapper mapper, IUserRepository userRepository, ICategoryRepository categoryRepository, IAuthService authService, IStringLocalizer<SharedResource> localizer)
         {
             _repository = repository;
             _mapper = mapper;
             _userRepository = userRepository;
             _categoryRepository = categoryRepository;
-            _userService= userService;
+            _authService= authService;
+            _localizer = localizer;
         }
 
         public TopicWithEntriesResponse GetTopicWithEntries(int topicId,string sort)
         {
             var topic = _repository.GetTopicWithEntries(topicId);
-            if (topic == null)
-            {
-                throw new NotFoundException("topik bulunamadı");
-            }
+
+            (topic==null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorTopicNotFound"]));
+
             var response = new TopicWithEntriesResponse
             {
                 Id = topic.Id,
@@ -64,16 +68,13 @@ namespace ESozluk.Business.Services
             var user = _userRepository.GetById(request.UserId);
             var category= _categoryRepository.GetById(request.CategoryId);
 
-            if (user == null)
-            {
-                throw new NotFoundException("Kullanıcı Id bulunamadı.");
+            (user==null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["UserNotFound"]));
 
-            }
-            if (category == null)
-            {
-                throw new NotFoundException("Kategori Id bulunamadı.");
-
-            }
+           
+            (category==null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorCategoryNotFound"]));
+            
 
             var topicEntity = _mapper.Map<Topic>(request);
             topicEntity.CreateDate = DateTime.Now;
@@ -90,35 +91,32 @@ namespace ESozluk.Business.Services
 
         }
 
-        public void UpdateTopic(UpdateTopicRequest request)
+        public void UpdateTopic(UpdateTopicRequest request,int currentUserId)
         {
             var topic = _repository.GetById(request.Id);
 
-            if (topic == null)
-            {
-                throw new NotFoundException("topic bulunamadı.");
-            }
-            if (topic.UserId != _userService.GetCurrentUserId())
-            {
-                throw new AuthorizedAccessException("Bu topiği güncelleme yetkiniz yok.");
-            }
+            (topic == null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorTopicNotFound"]));
+
+            (topic.UserId != currentUserId)
+                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+
+            
 
             _mapper.Map(request, topic);
             _repository.UpdateTopic(topic);
 
             
         }
-        public void DeleteTopic(DeleteTopicRequest request)
+        public void DeleteTopic(DeleteTopicRequest request,int currentUserId)
         {
             var topic = _repository.GetById(request.Id);
-            if (topic == null)
-            {
-                throw new NotFoundException("topic bulunamadı.");
-            }
-            if (topic.UserId != _userService.GetCurrentUserId())
-            {
-                throw new AuthorizedAccessException("Bu topiği silme yetkiniz yok.");
-            }
+
+            (topic == null)
+                .IfTrueThrow(() => new NotFoundException(_localizer["ErrorTopicNotFound"]));
+            (topic.UserId != currentUserId)
+                .IfTrueThrow(() => new AuthorizedAccessException(_localizer["ErrorUnauthorizedAccess"]));
+
 
             _repository.DeleteTopic(topic);
         }

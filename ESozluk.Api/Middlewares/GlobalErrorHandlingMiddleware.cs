@@ -1,4 +1,4 @@
-﻿using ESozluk.Core.Exceptions;
+﻿using ESozluk.Domain.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Text.Json;
